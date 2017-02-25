@@ -1,8 +1,10 @@
+options(java.parameters = "-Xmx16000m")
+
 library(rvest)
 library(rio)
 library(KoNLP)
 library(dplyr)
 library(data.table)
 library(gsubfn)
-
-2
+library(openNLP)
+library(NLP)

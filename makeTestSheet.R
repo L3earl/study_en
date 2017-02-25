@@ -4,6 +4,11 @@
 raw.data.list <- dir(list.dirs(), pattern = 'en.txt', full.names = TRUE)
 
 d1 <- raw.data.list %>% lapply(readLines) %>% lapply(as.data.table) %>% rbindlist() %>% tolower() %>% extractNoun() 
+# s, es, os 로 끝나는 단어 찾아서 해당 문자 제거 후, 같은 단어가 있는지 확인, 있다면 해당 단어들에서 s들 삭제
+# ves -> f/fe, ies -> y, es -> rm, s -> rm
+
+test <- tagPOS(d4[c(1:100),1])
+acqTagSplit = strsplit(as.character(test[1])," ")
 
 d2 <- gsub('[^a-z]', '', d1)
 d3 <- as.data.frame(d2[nchar(d2) >= 3])
@@ -23,7 +28,30 @@ data.words <- arrange(d4, desc(num))
 
 
 ## 해당 단어의 URL에서 상세 URL을 찾아내서 접속
-tc <- 'function'
+meaning.data <- function(x){
+  main.url <- paste0('http://endic.naver.com/search.nhn?sLn=kr&searchOption=all&query=' , x)
+  main.html <- read_html(main.url)
+  
+  temp <- html_nodes(main.html, "body .word_num .list_e2 .first span a")[1]
+  
+  temp2 <- strapplyc(as.character(temp), paste0('(/.*query=', x, ')'), simplify = TRUE)
+  words.url <- paste0('http://endic.naver.com', temp2)
+  words.html <- read_html(words.url)
+  temp3 <- html_nodes(words.html, '.list_a3 .meanClass .align_line')
+  temp4 <- strapplyc(as.character(temp3), paste0('(<span class="fnt_k.*</span>)\r'), simplify = TRUE)
+  temp5 <- gsub('\\[',',', temp4)
+  result <- gsub('[^가-힣(),]', '', temp5)
+  
+  return(result)
+}
+
+meaning.data('function')
+
+test <- apply(as.data.frame(data.words[,1]), 1, meaning.data)
+
+
+
+test <- 'function'
 tc
 
 url <- paste0('http://endic.naver.com/search.nhn?sLn=kr&searchOption=all&query=' , tc)
@@ -69,3 +97,4 @@ rnorm
 ?rnorm
 help.search('rnorm')
 args('rnorm')
+help.search('NLP')
