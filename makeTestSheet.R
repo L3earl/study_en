@@ -1,27 +1,4 @@
-
-### 데이터 전처리
-## raw 데이터를 가공하여 3글자 이상이며, 특수기호/숫자가 안 들어간 단어만 뽑아서 정렬
-raw.data.list <- dir(list.dirs(), pattern = 'en.txt', full.names = TRUE)
-
-d1 <- raw.data.list %>% lapply(readLines) %>% lapply(as.data.table) %>% rbindlist() %>% tolower() %>% extractNoun() 
-# s, es, os 로 끝나는 단어 찾아서 해당 문자 제거 후, 같은 단어가 있는지 확인, 있다면 해당 단어들에서 s들 삭제
-# ves -> f/fe, ies -> y, es -> rm, s -> rm
-
-test <- tagPOS(d4[c(1:100),1])
-acqTagSplit = strsplit(as.character(test[1])," ")
-
-d2 <- gsub('[^a-z]', '', d1)
-d3 <- as.data.frame(d2[nchar(d2) >= 3])
-colnames(d3) <- 'words'
-d3$num <- 1
-
-d4 <- aggregate(num ~ words, d3, sum)
-data.words <- arrange(d4, desc(num))
-
-### 전처리 끝
-
-
-### 단어장에 들어갈 내용들을 네이버 사전을 통해 수집
+### 전처리 된 단어들의 뜻과 예문을 네이버 사전에서 스크래핑하여, data.frame 형태로 엑셀로 저장
 ## 같은 단어인지 확인함 (acase sensitive)
 
 ## 품사를 확인함
@@ -52,7 +29,7 @@ test <- apply(as.data.frame(data.words[,1]), 1, meaning.data)
 
 
 test <- 'function'
-tc
+tc<- 'piece'
 
 url <- paste0('http://endic.naver.com/search.nhn?sLn=kr&searchOption=all&query=' , tc)
 test <- read_html(url) 
@@ -66,6 +43,50 @@ url2 <- paste0('http://endic.naver.com', t3)
 t4 <- read_html(url2)
 t5 <- html_nodes(t4, '.list_a3 .meanClass .align_line')
 t5
+
+
+ddt <- html_text(t5)
+kkng <- gsub('\\t ', '/', ddt)
+kkn2 <- gsub('[[:cntrl:]]', '', kkng)
+qq<- gsub('[" ]', '', kkn2)
+qq2 <- gsub('/', ' ', qq)
+qq3 <- gsub('예문닫기', '', qq2)
+qq4 <- gsub('^ {1}', '', qq3)
+qq5 <- gsub(' ${1}', '', qq4)
+
+#############
+td<- 'method'
+
+url <- paste0('http://dic.daum.net/search.do?q=' , td, '&dic=eng&search_first=Y')
+test <- read_html(url) 
+
+test2 <- html_nodes(test, ".search_box .cleanword_type .txt_search")
+head(test2)
+test2
+
+html_text(test2)
+
+t3 <- strapplyc(as.character(test2), paste0('(/.*query=', tc, ')'), simplify = TRUE)
+url2 <- paste0('http://endic.naver.com', t3)
+t4 <- read_html(url2)
+t5 <- html_nodes(t4, '.list_a3 .meanClass .align_line')
+t5
+
+
+ddt <- html_text(t5)
+kkng <- gsub('\\t ', '/', ddt)
+kkn2 <- gsub('[[:cntrl:]]', '', kkng)
+qq<- gsub('[" ]', '', kkn2)
+qq2 <- gsub('/', ' ', qq)
+qq3 <- gsub('예문닫기', '', qq2)
+qq4 <- gsub('^ {1}', '', qq3)
+qq5 <- gsub(' ${1}', '', qq4)
+
+############
+
+ddt2 <- gsub('[[:cntrl:]]', '', ddt)
+
+
 
 t6 <- strapplyc(as.character(t5), paste0('(<span class="fnt_k.*</span>)\r'), simplify = TRUE)
 t6
