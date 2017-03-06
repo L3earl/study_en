@@ -20,7 +20,7 @@ raw.data.words <- gsub('\\', '', temp.data2, fixed = TRUE)
 }
 ##
 
-
+  
 ## 데이터를 word 단위로 자르고, 품사 Tag를 붙힘. openNLP 패키지의 example 사용
 s <- as.String(raw.data.words)
 

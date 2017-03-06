@@ -32,7 +32,7 @@ meaning.data <- function(x){
 temp.list <- apply(as.data.frame(data.words.1[,1]), 1, meaning.data)  
 
 # 함수 결과인 리스트를 합쳐서 데이터 프레임으로 만듬
-foo <- 6
+foo <- 10
 temp.dtfm <- t(sapply(temp.list, '[', 1:foo))
 colnames(temp.dtfm) <- c(1:ncol(temp.dtfm))
   
@@ -40,5 +40,4 @@ words.meaning <- temp.dtfm[(!(is.na(temp.dtfm[,1])) & grepl('[^a-zA-Z]', temp.dt
   
 temp.text <- paste0('export(words.meaning, "', output.folder, '/testSheet_', filename.url, '.xlsx")')
 eval(parse(text=temp.text))
-
 ##
